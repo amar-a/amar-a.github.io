@@ -1,0 +1,257 @@
+<html>
+<head>
+    <title>Hershey - Guess The Word</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: sans-serif;
+        }
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            height: 100%;
+        }
+        .child {
+            width: 33.33%;
+            padding: 20px;
+            align-self: center;
+            border: 2px solid lightgray;
+        }
+        .p-4 {
+            padding: 10px;
+        }
+        #alphabet {
+            margin: 15px auto;
+            padding: 0;
+            max-width: 900px;
+            text-align: center;
+        }
+        #alphabet:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        #alphabet li {
+            float: left;
+            margin: 0 10px 10px 0;
+            list-style: none;
+            width: 35px;
+            height: 30px;
+            padding-top: 5px;
+            background: #fff;
+            color: #d77c2e;
+            cursor: pointer;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+            -khtml-border-radius: 5px;
+            border: solid 1px #d77c2e;
+        }
+        #alphabet li:hover {
+            background: #d77c2e;
+            border: solid 1px #fff;
+            color: #fff;
+        }
+        #characters {
+            text-align: center;
+            padding: 0;
+        }
+        #characters li {
+            display: inline-block;
+            list-style: none;
+            width: 20px;
+            margin: 0 5px;
+            border-bottom: 1px solid black;
+            text-align: center;
+            color: white;
+            padding-top: 10px;
+            height: 35px;
+            width: 30px;
+        }
+        .current-word {
+            list-style: none;
+        }
+        .result {
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        .correct {
+            background-color: green;
+            transition: all 1s ease;
+        }
+        .error {
+            color: red;
+            opacity: 1;
+        }
+        .warning {
+            color: orange;
+            opacity: 1;
+        }
+        .success {
+            color: darkgreen;
+            opacity: 1;
+        }
+        h3 {
+            text-align: center;
+            font-variant: small-caps;
+        }
+    </style>
+</head>
+<body>
+    <div class="container center">
+        <div class="child">
+        <h3>Guess The Word</h3>
+        <div class="center p-4">
+            <form id="hangman">
+                <ul id="alphabet">
+                    
+                </ul>
+
+                <div class="center">
+                    <ul id="characters"></ul>
+                </div>
+
+                <p id="attempts" class="center"></p>
+                <p id="result" class="result center"></p>
+
+                <div class="center">
+                    <button id="restart" name="restart" type="button">Restart</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const dictionary = ['milton', 'milk', 'park', 'hershey', 'sweet', 'happy', 'ticket', 'balloon', 'bayside', 'carrousel', 'cracker', 'hydro', 'pipeline', 'riptide', 'plunge', 'vortex', 'whirlwind', 'cocoa', 'comet', 'cruiser', 'convoy', 'dizzy', 'gulch', 'ferris', 'flyers', 'great', 'racer', 'pirate'];
+        var attempts = 5;
+        var numCharsMatched = 0;
+        var currentWord = '';
+
+        var guesses, charsMatched;
+
+        function clearResult() {
+            const resultElem = document.getElementById('result');
+            resultElem.classList.remove('warning', 'error', 'success');
+            resultElem.innerHTML = '';
+        }
+
+        function clearChildren(name) {
+            const elem = document.getElementById(name);
+            while (elem && elem.firstChild) {
+                elem.removeChild(elem.firstChild);
+            }
+        }
+
+        function reset() {
+            guesses = charsMatched = '';
+            numCharsMatched = 0;
+            attempts = 5;
+            currentWord = dictionary[Math.floor(Math.random() * dictionary.length)].toUpperCase();
+
+            const attemptsElem = document.getElementById('attempts');
+            attemptsElem.innerHTML = 'You have ' + attempts + ' attempts remaining';
+
+            clearResult();
+
+            clearChildren('alphabet');
+
+            const alphabetElem = document.getElementById('alphabet');
+            for (var i = 0; i < alphabet.length; i++) {
+                const listElem = document.createElement('li');
+                listElem.onclick = handleInput;
+                listElem.style.cursor = 'pointer';
+                listElem.innerHTML = alphabet.charAt(i).toUpperCase();
+
+                alphabetElem.appendChild(listElem);
+            }
+
+            clearChildren('characters');
+
+            const charactersElem = document.getElementById('characters');
+            for (var i = 0; i < currentWord.length; i++) {
+                const elem = '<li class="ch' + currentWord.charAt(i).toUpperCase() + '">&nbsp;</li>';
+                charactersElem.insertAdjacentHTML('beforeend', elem);
+            }
+        }
+
+        function gameOver(result) {
+            const resultElem = document.getElementById("result");
+            if (result) {
+                resultElem.innerHTML = "Congratulations, you win!";
+                resultElem.classList.add('success');
+            } else {
+                resultElem.innerHTML = "Sorry, you lost!";
+                resultElem.classList.add('error');
+            }
+        }
+
+        function handleInput(event) {
+            if (event.preventDefault) {
+                event.preventDefault();
+            }
+
+            clearResult();
+
+            var source = event.target || event.srcElement;
+            const guess = source.textContent;
+            if (guess) {
+                if (alphabet.indexOf(guess) > -1) {
+                    source.style.backgroundColor = 'lightGray';
+                    source.onclick = null;
+                    source.style.cursor = 'not-allowed';
+
+                    if ((charsMatched && charsMatched.indexOf(guess) > -1) ||
+                        (guesses && guesses.indexOf(guess) > -1)) {
+                            // ignore duplicates
+                    } else if (currentWord.indexOf(guess) > -1) {
+                        // find matching characters
+                        var correctChars = document.querySelectorAll(".ch" + guess.toUpperCase());
+                        for (var i = 0; i < correctChars.length; i++) {
+                            correctChars[i].innerHTML = guess.toUpperCase();
+                            correctChars[i].classList.add("correct");
+                        }
+
+                        // count matching characters
+                        for (var j = 0; j < currentWord.length; j++) {
+                            if (currentWord.charAt(j) === guess) {
+                                numCharsMatched += 1;
+                            }
+                        }
+
+                        charsMatched += guess;
+
+                        // are we done?
+                        if (numCharsMatched === currentWord.length) {
+                            gameOver(true);
+                        }
+                    } else {
+                        guesses += guess;
+                        attempts--;
+                        
+                        const attemptsElem = document.getElementById("attempts");
+                        attemptsElem.innerHTML = 'You have ' + attempts + ' attempts remaining';
+
+                        if (attempts === 0) {
+                            gameOver();
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        window.onload = reset;
+
+        document.getElementById("restart").onclick = reset;
+
+    </script>
+</body>
+</html>
