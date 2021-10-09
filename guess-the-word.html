@@ -197,6 +197,10 @@
                 event.preventDefault();
             }
 
+            if (attempts === 0) {
+                return false;
+            }
+
             clearResult();
 
             var source = event.target || event.srcElement;
