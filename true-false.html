@@ -1,0 +1,226 @@
+<html>
+    <head>
+        <title>Hershey - True or False</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet"> 
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                font-family: sans-serif;
+            }
+            .center {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .container {
+                height: 100%;
+            }
+            .child {
+                width: 100%;
+                padding: 20px;
+                align-self: center;
+                border: 2px solid lightgray;
+            }
+            h3 {
+                text-align: center;
+                font-variant: small-caps;
+                font-size: 1.25em;
+            }
+            #fact {
+                padding: 20px 0;
+                font-size: 140%;
+                font-family: 'Open Sans', cursive;
+            }
+            #trueBtn {
+                padding: 10px 20px;
+                background-color: darkgreen;
+                color: white;
+            }
+            #falseBtn {
+                padding: 10px 20px;
+                background-color: darkred;
+                color: white;
+            }
+            .py-4 {
+                padding: 20px 0;
+            }
+            .py-1 {
+                padding: 5px 0;
+            }
+            .px-1 {
+                padding: 0 5px;
+            }
+            .mx-1 {
+                margin: 0 5px;
+            }
+            #banner {
+                width: 100%;
+                max-width: 750px;
+                margin: 0 auto;
+            }
+            #stats {
+                width: 33%;
+                color: #3b3e41;
+                font-family: Open Sans,Helvetica,Arial,sans-serif;
+                font-size: 1.125em;
+                font-weight: 400;
+                letter-spacing: .05em;
+                line-height: 1.125em;
+                display: inline-block;
+                text-align: center;
+            }
+            #header {
+                width: 33%;
+                display: inline-block;
+                font-size: 1.5em;
+                font-weight: 400;
+                letter-spacing: .05em;
+                line-height: 1.5em;
+            }
+            #points {
+                width: 30%;
+                color: #3b3e41;
+                font-family: Open Sans,Helvetica,Arial,sans-serif;
+                font-size: 1.125em;
+                font-weight: 400;
+                letter-spacing: .05em;
+                line-height: 1.125em;
+                display: inline-block;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container center">
+            <div class="child">
+                <div id="banner">
+                    <div id="stats"></div>
+                    <div id="header"><h3>True or False</h3></div>
+                    <div id="points"></div>
+                </div>
+
+                <div id="fact" class="center"></div>
+                <div class="center">
+                    <button id="trueBtn" name="trueBtn" type="button" class="mx-1">True</button>
+                    <button id="falseBtn" name="falseBtn" type="button" class="mx-1">False</button>
+                </div>
+                <div class="center py-1">
+                    <p id="result"></p>
+                </div>
+                <div class="center">
+                    <button id="restartBtn" type="button">Restart</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            const facts = [
+                { fact: 'Hersheypark is an internationally acclaimed theme park.', valid: true },
+                { fact: 'Harry Reese worked for Hershey before making his own chocolate.', valid: true },
+                { fact: 'Hershey started by working as a print apprentice.', valid: true },
+                { fact: 'If you go to the Hershey Story, you will be able to make chocolate.', valid: true },
+                { fact: 'Hershey picked the names of the streets himself in Hershey', valid: true },
+                { fact: 'Hershey became interested in chocolate after the 1893 World Trade Fair.', valid: true },
+                { fact: 'Hershey holds the record for the world largest piece of chocolate.', valid: true },
+                { fact: 'Hershey is the largest buyer of almonds in the US.', valid: true },
+                { fact: 'Resse and Hershey were mortal rivals and hated each other.', valid: false },
+                { fact: 'The town was built primarily for a tourist attraction.', valid: false },
+                { fact: 'Hershey \'s first business was the Hershey company.', valid: false },,
+                { fact: 'Hershey went to the University of Penslyvannia.', valid: false },
+                { fact: 'Hersheypark was built primarily for a tourist attraction.', valid: false },
+                { fact: 'KitKat is aprat of the Hershey brand.', valid: false },
+                { fact: 'Hersheypark once operated an air park.', valid: true },
+                { fact: 'Hershey chocolate are only made in the US.', valid: false },
+        
+            ];
+            
+            var selectedFacts;
+            var correct = 0;
+            var index = 0;
+
+            function reset() {
+                selectedFacts = facts.sort(() => 0.5 - Math.random()).slice(0, 5);
+                index = 0;
+                correct = 0;
+
+                updateFact();
+            }
+
+            function updateButtons(disabled) {
+                const trueBtnElem = document.getElementById('trueBtn');
+                trueBtnElem.style.display = disabled ? 'none' : 'block';
+
+                const falseBtnElem = document.getElementById('falseBtn');
+                falseBtnElem.style.display = disabled ? 'none' : 'block';
+            }
+
+            function updateFact() {
+                if (index == selectedFacts.length) {
+                    updateButtons(true);
+
+                    const factElem = document.getElementById('fact');
+                    factElem.innerHTML = `Game Over, your score: &nbsp; <big>${correct*10}</big> &nbsp; points.`;
+
+                    const statsElem = document.getElementById('stats');
+                    statsElem.innerText = '';
+
+                    const pointsElem = document.getElementById('points');
+                    pointsElem.innerText = '';
+
+                    return;
+                }
+
+                const factElem = document.getElementById('fact');
+                factElem.innerText = selectedFacts[index].fact;
+
+                const statsElem = document.getElementById('stats');
+                statsElem.innerText = `${index+1} OF ${selectedFacts.length}`;
+
+                const pointsElem = document.getElementById('points');
+                pointsElem.innerText = `${correct*10} POINTS`;
+
+                updateButtons(false);
+            }
+
+            function handleTrue(event) {
+                if (event.preventDefault) {
+                    event.preventDefault();
+                }
+
+                if (selectedFacts[index].valid) {
+                    correct++;
+                }
+
+                index++;
+                updateFact();
+
+                return false;
+            }
+
+            function handleFalse(event) {
+                if (event.preventDefault) {
+                    event.preventDefault();
+                }
+
+                if (!selectedFacts[index].valid) {
+                    correct++;
+                }
+
+                index++;
+                updateFact();
+
+                return false;
+            }
+
+            window.onload = reset;
+
+            document.getElementById("restartBtn").onclick = reset;
+            document.getElementById("trueBtn").onclick = handleTrue;
+            document.getElementById("falseBtn").onclick = handleFalse;
+            
+        </script>
+    </body>
+</html>
